@@ -8,11 +8,11 @@ void _onDidReceiveBackgroundNotificationResponse(
   NotificationResponse notificationResponse,
 ) {
   log('background: ${notificationResponse.id}');
-  log(notificationResponse.payload.toString());
   _handleNotificationResponse(notificationResponse);
 }
 
 void _handleNotificationResponse(NotificationResponse notificationResponse) {
+  log('payload: ${notificationResponse.payload}');
   final payloadJson = notificationResponse.payload;
   if (payloadJson == null) return;
 
@@ -28,7 +28,12 @@ void _handleNotificationResponse(NotificationResponse notificationResponse) {
 class LocalNotif {
   static final _notifPlugin = FlutterLocalNotificationsPlugin();
 
-  static Future<void> initPlugin() async {
+  static Future<void> init() async {
+    _notifPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
+
     final androidSettings = AndroidInitializationSettings('@drawable/ic_notif');
     final iosSettings = DarwinInitializationSettings();
 
@@ -37,18 +42,12 @@ class LocalNotif {
       iOS: iosSettings,
     );
 
-    _notifPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestNotificationsPermission();
-
     await _notifPlugin.initialize(
       initializationSettings,
       onDidReceiveBackgroundNotificationResponse:
           _onDidReceiveBackgroundNotificationResponse,
       onDidReceiveNotificationResponse: (notificationResponse) {
         log('foreground: ${notificationResponse.id}');
-        log(notificationResponse.payload.toString());
         _handleNotificationResponse(notificationResponse);
       },
     );

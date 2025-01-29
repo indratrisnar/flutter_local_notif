@@ -6,7 +6,7 @@ final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await LocalNotif.initPlugin();
+  await LocalNotif.init();
   runApp(const MainApp());
 }
 
